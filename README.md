@@ -65,6 +65,7 @@ StarRating {
         starSpacing(6f)
         activeColor(Color(0xFFF5B400L))
         inactiveColor(Color(0xFFD8DDE6L))
+        starGlyph("★")
     }
     event {
         onRate { value ->
@@ -78,6 +79,8 @@ ratingRef.view?.clear()
 ```
 
 颜色用 `com.tencent.kuikly.core.base.Color`。默认 5 颗星、星宽 28、间距 6，组件按星数撑开宽高。调用方如果写了 `width` / `height`，之后改星数或星宽不会覆盖这两个值。`readOnly(true)` 只展示，不吃掉父级点击。`allowHalf(false)` 时按整星展示。滑出左边界为 0 分。
+
+`starGlyph` 设置星星字符，自研 DSL 与 Compose DSL 都支持，默认 ★；传入空字符串时仍显示 ★。
 
 `rating` 保存调用方传入的原始值，星星上画的是取整结果。半星开关或星数变化让展示值改变时，回调一次 `onRate`，参数是新的展示值；把这个值写回 `rating` 不会再次回调。组件第一次出现时不回调。按下和拖动只预览，松手才提交，展示值有变化才回调一次。手势取消则回到按下前的展示，不回调。`setRating` / `clear` 也只在展示值变化时回调，调用方需要把回调写回 `rating`。
 
@@ -94,6 +97,7 @@ StarRating(
     readOnly = false,
     starSize = 28f,
     starSpacing = 6f,
+    starGlyph = "★",
     onRate = { value -> rating = value },
     controller = controller,
 )
@@ -114,7 +118,7 @@ controller.clear()
 
 `:demo` 两页：
 
-- `star_rating_demo`：自研 DSL，从 0 分开始，可切换只读、半星，清空或设为 4 分
+- `star_rating_demo`：自研 DSL，从 0 分开始，可切换只读、半星、字形，清空或设为 4 分
 - `star_rating_compose_demo`：Compose DSL
 
 本地 Android 宿主（不发布）：

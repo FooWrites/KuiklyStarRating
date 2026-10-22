@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.kuikly.starrating.DefaultStarGlyph
 import com.kuikly.starrating.StarRating
 import com.kuikly.starrating.StarRatingController
 import com.kuikly.starrating.StarRatingGeometry
@@ -49,6 +50,7 @@ private fun StarRatingComposeDemo() {
     var rating by remember { mutableStateOf(0f) }
     var readOnly by remember { mutableStateOf(false) }
     var allowHalf by remember { mutableStateOf(true) }
+    var starGlyph by remember { mutableStateOf(DefaultStarGlyph) }
     var hint by remember { mutableStateOf("尚未评分") }
     Column(
         modifier = Modifier
@@ -73,6 +75,7 @@ private fun StarRatingComposeDemo() {
             starSpacing = COMPOSE_STAR_SPACING,
             activeColor = KuiklyColor(0xFFF5B400L),
             inactiveColor = KuiklyColor(0xFFD8DDE6L),
+            starGlyph = starGlyph,
             onRate = { value ->
                 rating = value
                 hint = "当前 ${StarRatingGeometry.formatRating(value)} 分"
@@ -120,6 +123,17 @@ private fun StarRatingComposeDemo() {
                 filled = true,
                 modifier = Modifier.weight(1f),
                 onClick = { controller.setRating(4f) },
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            DemoButton(
+                title = "字形：$starGlyph",
+                filled = starGlyph != DefaultStarGlyph,
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    starGlyph = if (starGlyph == DefaultStarGlyph) "☆" else DefaultStarGlyph
+                },
             )
         }
     }

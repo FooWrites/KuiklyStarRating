@@ -1,5 +1,6 @@
 package com.kuikly.starrating.demo
 
+import com.kuikly.starrating.DefaultStarGlyph
 import com.kuikly.starrating.StarRating
 import com.kuikly.starrating.StarRatingGeometry
 import com.kuikly.starrating.StarRatingView
@@ -23,6 +24,7 @@ class StarRatingDemoPage : Pager() {
     private var rating by observable(0f)
     private var readOnly by observable(false)
     private var allowHalf by observable(true)
+    private var starGlyph by observable(DefaultStarGlyph)
     private var hint by observable("尚未评分")
 
     override fun body(): ViewBuilder {
@@ -62,6 +64,7 @@ class StarRatingDemoPage : Pager() {
                     starSpacing(DEMO_STAR_SPACING)
                     activeColor(Color(0xFFF5B400L))
                     inactiveColor(Color(0xFFD8DDE6L))
+                    starGlyph(ctx.starGlyph)
                 }
                 event {
                     onRate { value ->
@@ -125,6 +128,19 @@ class StarRatingDemoPage : Pager() {
                     marginRight = 0f,
                 ) {
                     ctx.ratingRef?.view?.setRating(4f)
+                }
+            }
+            View {
+                attr {
+                    marginTop(8f)
+                    flexDirectionRow()
+                }
+                actionButton(
+                    title = { "字形：${ctx.starGlyph}" },
+                    filled = { ctx.starGlyph != DefaultStarGlyph },
+                    marginRight = 0f,
+                ) {
+                    ctx.starGlyph = if (ctx.starGlyph == DefaultStarGlyph) "☆" else DefaultStarGlyph
                 }
             }
         }
