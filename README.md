@@ -47,7 +47,7 @@ JitPack 只发布 `:starrating` 与 `:starrating-compose`。`:demo` 和 `:androi
 | 模块 | 发布 | 说明 |
 | --- | --- | --- |
 | `:starrating` | 是 | 自研 DSL |
-| `:starrating-compose` | 是 | Compose DSL，包装同一个 `StarRatingView` |
+| `:starrating-compose` | 是 | Compose DSL。用 Compose 布局绘制，计算与自研 DSL 共用 |
 | `:demo` | 否 | 示例页 `star_rating_demo`、`star_rating_compose_demo` |
 | `:androidApp` | 否 | 本地 Android 示例宿主，默认打开 `star_rating_demo` |
 
@@ -77,7 +77,9 @@ ratingRef.view?.setRating(4f)
 ratingRef.view?.clear()
 ```
 
-颜色用 `com.tencent.kuikly.core.base.Color`。默认 5 颗星、星宽 28、间距 6，组件会按星数撑开宽高。`readOnly(true)` 只展示，不响应触摸。`allowHalf(false)` 时取整星。滑出左边界为 0 分。
+颜色用 `com.tencent.kuikly.core.base.Color`。默认 5 颗星、星宽 28、间距 6，组件按星数撑开宽高。调用方如果写了 `width` / `height`，之后改星数或星宽不会覆盖这两个值。`readOnly(true)` 只展示，不吃掉父级点击。`allowHalf(false)` 时按整星展示。滑出左边界为 0 分。
+
+`rating` 保存调用方传入的原始值，星星上画的是取整结果。半星开关或星数变化让展示值改变时，回调一次 `onRate`，参数是新的展示值；把这个值写回 `rating` 不会再次回调。组件第一次出现时不回调。按下和拖动只预览，松手才提交，展示值有变化才回调一次。手势取消则回到按下前的展示，不回调。`setRating` / `clear` 也只在展示值变化时回调，调用方需要把回调写回 `rating`。
 
 ## Compose DSL
 
@@ -86,7 +88,6 @@ val controller = remember { StarRatingController() }
 var rating by remember { mutableStateOf(0f) }
 
 StarRating(
-    modifier = Modifier.width(164.dp).height(28.dp),
     maxStars = 5,
     rating = rating,
     allowHalf = true,
@@ -101,11 +102,13 @@ controller.setRating(4f)
 controller.clear()
 ```
 
-`StarRating` 通过 `MakeKuiklyComposeNode` 挂上同一个 `StarRatingView`，绘制逻辑不另写一份。
+`starSize` / `starSpacing` 的单位是 dp。组件默认按星数 × 星宽测量，不撑满父约束；滚动方向没有上界时也按内容尺寸。`modifier` 上的宽高会覆盖这个默认尺寸。取值、预览和 `onRate` 与自研 DSL 相同。
+
+`StarRatingController.setRating` / `clear` 在组合还没挂上时会先记住，挂上后补一次 `onRate`。页面离开组合后不再回调。控制器改分同样要在 `onRate` 里写回 `rating`。
 
 ## sDynamic
 
-绘制全部在 `commonMain`：用 Kuikly 声明式 `View` / `Text` 排 ★，没有 Android / iOS 原生 View，也没有 CocoaPods 依赖。可以按 sDynamic 组件接入。
+绘制都在 `commonMain`。自研 DSL 用 Kuikly `View` / `Text` 排 ★。Compose DSL 用 Compose 的 `Row` / `Box` / `Text` 排 ★，不把 `StarRatingView` 放进 `MakeKuiklyComposeNode`。没有 Android / iOS 原生 View，也没有 CocoaPods 依赖。可以按 sDynamic 组件接入。
 
 ## 示例
 

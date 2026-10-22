@@ -27,11 +27,6 @@ class StarRatingDemoPage : Pager() {
 
     override fun body(): ViewBuilder {
         val ctx = this
-        val ratingWidth = StarRatingGeometry.contentWidth(
-            DEMO_MAX_STARS,
-            DEMO_STAR_SIZE,
-            DEMO_STAR_SPACING,
-        )
         return {
             attr {
                 flex(1f)
@@ -50,7 +45,7 @@ class StarRatingDemoPage : Pager() {
             Text {
                 attr {
                     marginTop(6f)
-                    text("自研 DSL。点按或拖动星星打分，适合商品评价和内容打分。")
+                    text("自研 DSL。拖动只预览，松手后记分。")
                     fontSize(14f)
                     color(Color(0xFF667085L))
                 }
@@ -59,8 +54,6 @@ class StarRatingDemoPage : Pager() {
                 ref { ctx.ratingRef = it }
                 attr {
                     marginTop(20f)
-                    width(ratingWidth)
-                    height(DEMO_STAR_SIZE)
                     maxStars(DEMO_MAX_STARS)
                     rating(ctx.rating)
                     allowHalf(ctx.allowHalf)
@@ -99,15 +92,15 @@ class StarRatingDemoPage : Pager() {
                     flexDirectionRow()
                 }
                 actionButton(
-                    title = if (ctx.readOnly) "只读：开" else "只读：关",
-                    filled = ctx.readOnly,
+                    title = { if (ctx.readOnly) "只读：开" else "只读：关" },
+                    filled = { ctx.readOnly },
                     marginRight = 8f,
                 ) {
                     ctx.readOnly = !ctx.readOnly
                 }
                 actionButton(
-                    title = if (ctx.allowHalf) "半星：开" else "半星：关",
-                    filled = ctx.allowHalf,
+                    title = { if (ctx.allowHalf) "半星：开" else "半星：关" },
+                    filled = { ctx.allowHalf },
                     marginRight = 0f,
                 ) {
                     ctx.allowHalf = !ctx.allowHalf
@@ -119,16 +112,16 @@ class StarRatingDemoPage : Pager() {
                     flexDirectionRow()
                 }
                 actionButton(
-                    title = "清空",
-                    filled = false,
+                    title = { "清空" },
+                    filled = { false },
                     marginRight = 8f,
                 ) {
                     ctx.ratingRef?.view?.clear()
                     ctx.hint = "已清空"
                 }
                 actionButton(
-                    title = "设为 4 分",
-                    filled = true,
+                    title = { "设为 4 分" },
+                    filled = { true },
                     marginRight = 0f,
                 ) {
                     ctx.ratingRef?.view?.setRating(4f)
@@ -139,8 +132,8 @@ class StarRatingDemoPage : Pager() {
 }
 
 private fun ViewContainer<*, *>.actionButton(
-    title: String,
-    filled: Boolean,
+    title: () -> String,
+    filled: () -> Boolean,
     marginRight: Float,
     onClick: () -> Unit,
 ) {
@@ -150,7 +143,7 @@ private fun ViewContainer<*, *>.actionButton(
             height(44f)
             marginRight(marginRight)
             borderRadius(8f)
-            backgroundColor(if (filled) Color(0xFF1F6FEBL) else Color(0xFFF2F4F7L))
+            backgroundColor(if (filled()) Color(0xFF1F6FEBL) else Color(0xFFF2F4F7L))
             allCenter()
         }
         event {
@@ -160,9 +153,9 @@ private fun ViewContainer<*, *>.actionButton(
         }
         Text {
             attr {
-                text(title)
+                text(title())
                 fontSize(15f)
-                color(if (filled) Color.WHITE else Color(0xFF1F2328L))
+                color(if (filled()) Color.WHITE else Color(0xFF1F2328L))
             }
         }
     }

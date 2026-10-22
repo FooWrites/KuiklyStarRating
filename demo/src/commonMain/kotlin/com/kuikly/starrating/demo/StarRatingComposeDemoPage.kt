@@ -50,11 +50,6 @@ private fun StarRatingComposeDemo() {
     var readOnly by remember { mutableStateOf(false) }
     var allowHalf by remember { mutableStateOf(true) }
     var hint by remember { mutableStateOf("尚未评分") }
-    val ratingWidth = StarRatingGeometry.contentWidth(
-        COMPOSE_MAX_STARS,
-        COMPOSE_STAR_SIZE,
-        COMPOSE_STAR_SPACING,
-    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,15 +59,12 @@ private fun StarRatingComposeDemo() {
         Text(text = "星级评分", fontSize = 20.sp, color = Color(0xFF1F2328))
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Compose DSL。点按或拖动星星打分。",
+            text = "Compose DSL。拖动只预览，松手后记分。",
             fontSize = 14.sp,
             color = Color(0xFF667085),
         )
         Spacer(modifier = Modifier.height(20.dp))
         StarRating(
-            modifier = Modifier
-                .width(ratingWidth.dp)
-                .height(COMPOSE_STAR_SIZE.dp),
             maxStars = COMPOSE_MAX_STARS,
             rating = rating,
             allowHalf = allowHalf,

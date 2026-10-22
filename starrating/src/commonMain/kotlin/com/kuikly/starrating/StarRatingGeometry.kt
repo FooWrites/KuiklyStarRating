@@ -4,6 +4,15 @@ import kotlin.math.roundToInt
 
 /**
  * 星级命中与取值。不依赖渲染，自研 DSL 与 Compose DSL 共用同一套计算。
+ *
+ * 取值约定：
+ * - `rating` 保存调用方传入的原始值，属性刷新时不改写。
+ * - 星星画 [snapRating] 的结果。半星开着时按 0.5 取整，否则取整星。
+ * - 半星开关或星数变化让展示值变了，回调一次 onRate，参数是新的展示值。
+ *   第一次挂到页面上不回调。调用方把回调值写回 `rating` 后不会再回调。
+ * - 按下和移动只预览，不回调。松手才提交；展示值有变化才回调一次。
+ *   手势取消则回到按下前的展示，不回调。
+ * - `setRating` / `clear` 写入原始值，只在展示值变化时回调展示值。
  */
 object StarRatingGeometry {
     const val MIN_STARS = 1
@@ -25,6 +34,20 @@ object StarRatingGeometry {
 
     fun contentHeight(starSize: Float): Float {
         return starSize.coerceAtLeast(1f)
+    }
+
+    /**
+     * 把内容尺寸收进父约束。
+     *
+     * 父约束松散时用内容尺寸，不用 max。父约束把 min 和 max 收成同一个值时，保留调用方指定的尺寸。
+     * [bounded] 为 false 表示该轴没有上界（例如滚动方向），这时忽略 [max]，避免把无限大当成组件尺寸。
+     */
+    fun resolveContentSize(content: Int, min: Int, max: Int, bounded: Boolean): Int {
+        val safeContent = content.coerceAtLeast(0)
+        val low = min.coerceAtLeast(0)
+        val upper = if (bounded) max else safeContent
+        val high = maxOf(low, upper)
+        return safeContent.coerceIn(low, high)
     }
 
     /**
@@ -84,13 +107,54 @@ object StarRatingGeometry {
         }
     }
 
+    /**
+     * 半星开关或星数变化后，若同一个原始值的展示结果变了，返回新的展示值；否则返回 null。
+     *
+     * [previous] 为 null 表示组件刚挂上，不回调。调用方把返回值写回原始值后，同一组约束不会再次返回。
+     * 原始值本身不被改写，取整只影响展示和这次回调。
+     */
+    fun ratingAfterConstraintChange(
+        raw: Float,
+        previous: StarRatingConstraints?,
+        next: StarRatingConstraints,
+    ): Float? {
+        if (previous == null) {
+            return null
+        }
+        val normalizedPrev = StarRatingConstraints.of(previous.maxStars, previous.allowHalf)
+        val normalizedNext = StarRatingConstraints.of(next.maxStars, next.allowHalf)
+        if (normalizedPrev == normalizedNext) {
+            return null
+        }
+        val before = snapRating(raw, normalizedPrev.maxStars, normalizedPrev.allowHalf)
+        val after = snapRating(raw, normalizedNext.maxStars, normalizedNext.allowHalf)
+        return if (before != after) after else null
+    }
+
     fun formatRating(value: Float): String {
         val scaled = (snapRating(value, MAX_STARS, allowHalf = true) * 2f).roundToInt()
         val whole = scaled / 2
         return if (scaled % 2 == 0) {
             whole.toString()
-        } else {
+        }         else {
             "$whole.5"
+        }
+    }
+}
+
+/**
+ * 已经归一化之前也可以传进来。[of] 会把星数收进合法范围。
+ */
+data class StarRatingConstraints(
+    val maxStars: Int,
+    val allowHalf: Boolean,
+) {
+    companion object {
+        fun of(maxStars: Int, allowHalf: Boolean): StarRatingConstraints {
+            return StarRatingConstraints(
+                StarRatingGeometry.normalizeMaxStars(maxStars),
+                allowHalf,
+            )
         }
     }
 }

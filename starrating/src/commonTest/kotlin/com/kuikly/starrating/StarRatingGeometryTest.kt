@@ -2,6 +2,7 @@ package com.kuikly.starrating
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class StarRatingGeometryTest {
@@ -54,6 +55,45 @@ class StarRatingGeometryTest {
         assertEquals("0", StarRatingGeometry.formatRating(0f))
         assertEquals("3.5", StarRatingGeometry.formatRating(3.5f))
         assertEquals("4", StarRatingGeometry.formatRating(4f))
+    }
+
+    @Test
+    fun contentSizeStaysContentSizedInsideLooseConstraints() {
+        assertEquals(164, StarRatingGeometry.resolveContentSize(164, 0, 1080, bounded = true))
+        assertEquals(28, StarRatingGeometry.resolveContentSize(28, 0, 1080, bounded = true))
+    }
+
+    @Test
+    fun contentSizeUsesTightConstraintsAndUnboundedAxis() {
+        assertEquals(200, StarRatingGeometry.resolveContentSize(164, 200, 200, bounded = true))
+        assertEquals(100, StarRatingGeometry.resolveContentSize(164, 0, 100, bounded = true))
+        assertEquals(164, StarRatingGeometry.resolveContentSize(164, 0, Int.MAX_VALUE, bounded = false))
+        assertEquals(50, StarRatingGeometry.resolveContentSize(40, 50, Int.MAX_VALUE, bounded = false))
+    }
+
+    @Test
+    fun constraintChangeEmitsOnlyWhenSnapMoves() {
+        val half = StarRatingConstraints.of(5, allowHalf = true)
+        val whole = StarRatingConstraints.of(5, allowHalf = false)
+        assertNull(StarRatingGeometry.ratingAfterConstraintChange(3.5f, previous = null, next = whole))
+        assertEquals(4f, StarRatingGeometry.ratingAfterConstraintChange(3.5f, half, whole))
+        assertNull(StarRatingGeometry.ratingAfterConstraintChange(4f, whole, whole))
+        assertNull(StarRatingGeometry.ratingAfterConstraintChange(4f, half, whole))
+        assertEquals(
+            3f,
+            StarRatingGeometry.ratingAfterConstraintChange(
+                5f,
+                StarRatingConstraints.of(5, true),
+                StarRatingConstraints.of(3, true),
+            ),
+        )
+        assertNull(
+            StarRatingGeometry.ratingAfterConstraintChange(
+                1f,
+                StarRatingConstraints.of(100, true),
+                StarRatingConstraints.of(20, true),
+            ),
+        )
     }
 
     private fun touch(
