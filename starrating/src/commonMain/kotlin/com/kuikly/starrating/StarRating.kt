@@ -12,18 +12,22 @@ import com.tencent.kuikly.core.views.View
 
 val DefaultStarActiveColor = Color(0xFFF5B400L)
 val DefaultStarInactiveColor = Color(0xFFD8DDE6L)
+const val DefaultStarGlyph = "★"
 
-private const val STAR_GLYPH = "★"
+fun normalizeStarGlyph(glyph: String): String {
+    return glyph.ifEmpty { DefaultStarGlyph }
+}
 
 /**
  * 星级评分。全部用自研 DSL 的 View / Text 绘制，不依赖原生 View。
- * 半星是把亮色 ★ 裁到左半边，叠在灰色 ★ 上。
+ * 半星是把亮色字形裁到左半边，叠在灰色字形上。默认字形是 ★。
  * 取值约定见 [StarRatingGeometry]。
  */
 class StarRatingView : ViewContainer<StarRatingAttr, StarRatingEvent>() {
     private val interaction = StarRatingInteraction()
     private var activeColorValue: Color = DefaultStarActiveColor
     private var inactiveColorValue: Color = DefaultStarInactiveColor
+    private var starGlyphValue: String = DefaultStarGlyph
     private var acceptsTouch by observable(true)
     private var paintedKey: PaintKey? = null
     private var renderToken by observable(0)
@@ -70,6 +74,7 @@ class StarRatingView : ViewContainer<StarRatingAttr, StarRatingEvent>() {
         )
         activeColorValue = attr.active
         inactiveColorValue = attr.inactive
+        starGlyphValue = normalizeStarGlyph(attr.starGlyph)
         publish()
         if (emit != null) {
             getViewEvent().emit(emit)
@@ -86,6 +91,7 @@ class StarRatingView : ViewContainer<StarRatingAttr, StarRatingEvent>() {
             spacing = interaction.starSpacing,
             active = activeColorValue.hexColor,
             inactive = inactiveColorValue.hexColor,
+            glyph = starGlyphValue,
         )
         if (key != paintedKey) {
             paintedKey = key
@@ -146,7 +152,7 @@ class StarRatingView : ViewContainer<StarRatingAttr, StarRatingEvent>() {
                             }
                             Text {
                                 attr {
-                                    text(STAR_GLYPH)
+                                    text(ctx.starGlyphValue)
                                     fontSize(size)
                                     lineHeight(size)
                                     textAlignCenter()
@@ -167,7 +173,7 @@ class StarRatingView : ViewContainer<StarRatingAttr, StarRatingEvent>() {
                                     Text {
                                         attr {
                                             absolutePosition(top = 0f, left = 0f)
-                                            text(STAR_GLYPH)
+                                            text(ctx.starGlyphValue)
                                             fontSize(size)
                                             lineHeight(size)
                                             textAlignCenter()
@@ -238,6 +244,7 @@ private data class PaintKey(
     val spacing: Float,
     val active: Long,
     val inactive: Long,
+    val glyph: String,
 )
 
 class StarRatingAttr : ContainerAttr() {
@@ -249,6 +256,7 @@ class StarRatingAttr : ContainerAttr() {
     internal var starSpacing: Float = StarRatingGeometry.DEFAULT_STAR_SPACING
     internal var active: Color = DefaultStarActiveColor
     internal var inactive: Color = DefaultStarInactiveColor
+    internal var starGlyph: String = DefaultStarGlyph
     internal var onStyleChanged: (() -> Unit)? = null
     internal var userSetWidth: Boolean = false
     internal var userSetHeight: Boolean = false
@@ -300,6 +308,11 @@ class StarRatingAttr : ContainerAttr() {
 
     fun inactiveColor(color: Color) {
         inactive = color
+        onStyleChanged?.invoke()
+    }
+
+    fun starGlyph(glyph: String) {
+        starGlyph = normalizeStarGlyph(glyph)
         onStyleChanged?.invoke()
     }
 }
