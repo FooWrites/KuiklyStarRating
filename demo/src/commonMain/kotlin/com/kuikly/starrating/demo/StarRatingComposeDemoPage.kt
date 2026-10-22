@@ -20,6 +20,7 @@ import com.tencent.kuikly.compose.foundation.layout.padding
 import com.tencent.kuikly.compose.foundation.layout.width
 import com.tencent.kuikly.compose.foundation.shape.RoundedCornerShape
 import com.tencent.kuikly.compose.material3.Button
+import com.tencent.kuikly.compose.material3.ButtonDefaults
 import com.tencent.kuikly.compose.material3.Text
 import com.tencent.kuikly.compose.setContent
 import com.tencent.kuikly.compose.ui.Modifier
@@ -136,9 +137,12 @@ private fun DemoButton(
     val textColor = if (filled) Color.White else Color(0xFF1F2328)
     Button(
         onClick = onClick,
-        modifier = modifier
-            .height(44.dp)
-            .background(background, RoundedCornerShape(8.dp)),
+        modifier = modifier.height(44.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = background,
+            contentColor = textColor,
+        ),
     ) {
         Text(text = title, fontSize = 15.sp, color = textColor)
     }
