@@ -1,0 +1,12 @@
+{
+  "githubUrl": "https://github.com/FooWrites/KuiklyStarRating",
+  "componentName": "StarRating",
+  "componentDescription": "Kuikly 星级评分（自研 DSL）",
+  "componentType": "KuiklyView",
+  "developer": "FooWrites",
+  "Android": true,
+  "iOS": true,
+  "Ohos": false,
+  "Js": true,
+  "sDynamic": true
+}

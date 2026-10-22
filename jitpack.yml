@@ -1,0 +1,4 @@
+jdk:
+  - openjdk17
+install:
+  - ./gradlew :starrating:publishToMavenLocal :starrating-compose:publishToMavenLocal --no-daemon --stacktrace
