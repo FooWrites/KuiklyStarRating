@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.kuikly.starrating.DefaultStarGlyph
 import com.kuikly.starrating.StarRating
 import com.kuikly.starrating.StarRatingController
 import com.kuikly.starrating.StarRatingGeometry
@@ -20,6 +21,7 @@ import com.tencent.kuikly.compose.foundation.layout.padding
 import com.tencent.kuikly.compose.foundation.layout.width
 import com.tencent.kuikly.compose.foundation.shape.RoundedCornerShape
 import com.tencent.kuikly.compose.material3.Button
+import com.tencent.kuikly.compose.material3.ButtonDefaults
 import com.tencent.kuikly.compose.material3.Text
 import com.tencent.kuikly.compose.setContent
 import com.tencent.kuikly.compose.ui.Modifier
@@ -49,6 +51,7 @@ private fun StarRatingComposeDemo() {
     var rating by remember { mutableStateOf(0f) }
     var readOnly by remember { mutableStateOf(false) }
     var allowHalf by remember { mutableStateOf(true) }
+    var starGlyph by remember { mutableStateOf(DefaultStarGlyph) }
     var hint by remember { mutableStateOf("尚未评分") }
     Column(
         modifier = Modifier
@@ -73,6 +76,7 @@ private fun StarRatingComposeDemo() {
             starSpacing = COMPOSE_STAR_SPACING,
             activeColor = KuiklyColor(0xFFF5B400L),
             inactiveColor = KuiklyColor(0xFFD8DDE6L),
+            starGlyph = starGlyph,
             onRate = { value ->
                 rating = value
                 hint = "当前 ${StarRatingGeometry.formatRating(value)} 分"
@@ -122,6 +126,17 @@ private fun StarRatingComposeDemo() {
                 onClick = { controller.setRating(4f) },
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            DemoButton(
+                title = "字形：$starGlyph",
+                filled = starGlyph != DefaultStarGlyph,
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    starGlyph = if (starGlyph == DefaultStarGlyph) "☆" else DefaultStarGlyph
+                },
+            )
+        }
     }
 }
 
@@ -136,9 +151,12 @@ private fun DemoButton(
     val textColor = if (filled) Color.White else Color(0xFF1F2328)
     Button(
         onClick = onClick,
-        modifier = modifier
-            .height(44.dp)
-            .background(background, RoundedCornerShape(8.dp)),
+        modifier = modifier.height(44.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = background,
+            contentColor = textColor,
+        ),
     ) {
         Text(text = title, fontSize = 15.sp, color = textColor)
     }

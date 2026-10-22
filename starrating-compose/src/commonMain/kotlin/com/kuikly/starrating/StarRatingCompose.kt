@@ -30,14 +30,13 @@ import com.tencent.kuikly.compose.ui.unit.sp
 import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.compose.ui.graphics.Color as ComposeColor
 
-private const val STAR_GLYPH = "★"
-
 /**
  * Compose 星级评分。用 Row / Box / Text 绘制，不经过 MakeKuiklyComposeNode。
  *
  * Kuikly 2.4.2 的 ComposeContainer.ignoreLayout 会跳过 flex。
  * 把 StarRatingView 包进 MakeKuiklyComposeNode 后，内部 flex 子节点帧是 0，星星空白也不能点。
  * 取值约定与自研 DSL 相同，见 [StarRatingGeometry]。
+ * 字形由 [starGlyph] 指定，默认 ★，空字符串回落到 ★。半星仍按宽度裁切亮色字形。
  */
 @Composable
 fun StarRating(
@@ -50,6 +49,7 @@ fun StarRating(
     starSpacing: Float = StarRatingGeometry.DEFAULT_STAR_SPACING,
     activeColor: Color = DefaultStarActiveColor,
     inactiveColor: Color = DefaultStarInactiveColor,
+    starGlyph: String = DefaultStarGlyph,
     onRate: (Float) -> Unit = {},
     controller: StarRatingController = remember { StarRatingController() },
 ) {
@@ -60,6 +60,7 @@ fun StarRating(
     val contentHeight = StarRatingGeometry.contentHeight(size)
     val active = activeColor.toComposeColor()
     val inactive = inactiveColor.toComposeColor()
+    val glyph = normalizeStarGlyph(starGlyph)
 
     var preview by remember { mutableStateOf<Float?>(null) }
     var appliedConstraints by remember { mutableStateOf<StarRatingConstraints?>(null) }
@@ -178,6 +179,7 @@ fun StarRating(
                 repeat(constraints.maxStars) { index ->
                     val fill = (shown - index).coerceIn(0f, 1f)
                     StarGlyph(
+                        glyph = glyph,
                         starSize = size,
                         fill = fill,
                         active = active,
@@ -220,6 +222,7 @@ fun StarRating(
 
 @Composable
 private fun StarGlyph(
+    glyph: String,
     starSize: Float,
     fill: Float,
     active: ComposeColor,
@@ -227,6 +230,7 @@ private fun StarGlyph(
 ) {
     Box(modifier = Modifier.size(starSize.dp).clipToBounds()) {
         StarLabel(
+            glyph = glyph,
             color = inactive,
             starSize = starSize,
             modifier = Modifier.size(starSize.dp),
@@ -239,6 +243,7 @@ private fun StarGlyph(
                     .clipToBounds(),
             ) {
                 StarLabel(
+                    glyph = glyph,
                     color = active,
                     starSize = starSize,
                     modifier = Modifier.requiredSize(starSize.dp),
@@ -250,12 +255,13 @@ private fun StarGlyph(
 
 @Composable
 private fun StarLabel(
+    glyph: String,
     color: ComposeColor,
     starSize: Float,
     modifier: Modifier,
 ) {
     Text(
-        text = STAR_GLYPH,
+        text = glyph,
         color = color,
         fontSize = starSize.sp,
         lineHeight = starSize.sp,
