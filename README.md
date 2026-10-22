@@ -29,16 +29,16 @@ repositories {
 自研 DSL：
 
 ```kotlin
-implementation("com.github.FooWrites.KuiklyStarRating:starrating:<tag>")
+implementation("com.github.FooWrites.KuiklyStarRating:starrating:v0.1.0")
 ```
 
 Compose DSL：
 
 ```kotlin
-implementation("com.github.FooWrites.KuiklyStarRating:starrating-compose:<tag>")
+implementation("com.github.FooWrites.KuiklyStarRating:starrating-compose:v0.1.0")
 ```
 
-把 `<tag>` 换成发布标签。`starrating-compose` 已传递依赖 `starrating`。本库基于 Kotlin 2.1.21 / Kuikly 2.4.2-2.0.21 构建，不发布到 Maven Central。
+`starrating-compose` 已传递依赖 `starrating`。本库基于 Kotlin 2.1.21 / Kuikly 2.4.2-2.0.21 构建，不发布到 Maven Central。
 
 JitPack 只发布 `:starrating` 与 `:starrating-compose`。`:demo` 和 `:androidApp` 不在发布坐标里。
 

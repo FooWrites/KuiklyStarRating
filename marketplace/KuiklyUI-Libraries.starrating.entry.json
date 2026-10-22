@@ -6,7 +6,6 @@
   "developer": "FooWrites",
   "Android": true,
   "iOS": true,
-  "Ohos": false,
   "Js": true,
   "sDynamic": true
 }
